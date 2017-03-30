@@ -20,12 +20,15 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * @author adrians
  */
 public class ventana_principal extends javax.swing.JFrame {
-
+    
+    AOrigen archivos = new AOrigen();
+    
     /**
      * Creates new form ventana_principal
      */
     public ventana_principal() {
         initComponents();
+        get_inicio_propiedades();
     }
 
     /**
@@ -88,7 +91,13 @@ public class ventana_principal extends javax.swing.JFrame {
         jLabel3.setText("seleccione");
 
         jButton6.setText("importar");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
 
+        jTextArea1.setEditable(false);
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
@@ -219,9 +228,132 @@ public class ventana_principal extends javax.swing.JFrame {
        jLabel3.setText(texto);
     }//GEN-LAST:event_jButton5ActionPerformed
 
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        
+        
+        Properties prop = new Properties();
+        InputStream is = null;
+        try {
+            is = new FileInputStream("src/importador/config.properties");
+            prop.load(is);
+            
+            String sDirectorOrigen = prop.getProperty("origen");
+            String sDirectorDestino = prop.getProperty("destino");
+            
+            File origen = new File(sDirectorOrigen);
+            File destino = new File(sDirectorDestino);
+            
+            if (origen.exists()){
+                jTextArea1.append("existe el directorio origen");
+                if (destino.exists()){
+                    jTextArea1.append("\n existe el directorio destino");
+                    if (verificar_origen(origen)){
+                        jTextArea1.append("\n nombre: "+archivos.getNombre_archivo_MASNTHG());
+                        jTextArea1.append("\n ruta: "+archivos.getRuta_archivo_MASNTHG());
+                        jTextArea1.append("\n nombre: "+archivos.getNombre_archivo_MASNTHG_CLIENTES());
+                        jTextArea1.append("\n ruta: "+archivos.getRuta_archivo_MASNTHG_CLIENTES());
+                        jTextArea1.append("\n nombre: "+archivos.getNombre_archivo_MASNTHG_MAEART());
+                        jTextArea1.append("\n ruta: "+archivos.getRuta_archivo_MASNTHG_MAEART());
+                        jTextArea1.append("\n nombre: "+archivos.getNombre_archivo_MASNTHG_MSTOCK());
+                        jTextArea1.append("\n ruta: "+archivos.getRuta_archivo_MASNTHG_MSTOCK());
+                        jTextArea1.append("\n nombre: "+archivos.getNombre_archivo_MASNTHG_MVTA());
+                        jTextArea1.append("\n ruta: "+archivos.getRuta_archivo_MASNTHG_MVTA());
+                    };
+                }else {  
+                    jTextArea1.append("\n no existe el directorio destino");
+                }
+            }else {  
+                jTextArea1.append("\n no existe el directorio origen");
+            }
+            
+             
+        } catch(IOException e) {
+                System.out.println(e.toString());
+        }
+        
+        
+    }//GEN-LAST:event_jButton6ActionPerformed
+
     /**
      * @param args the command line arguments
      */
+    
+    private void mostrarArchivosFichero(File origen){
+        File[] ficheros = origen.listFiles();
+        for (int x=0;x<ficheros.length;x++){
+           jTextArea1.append("\n"+ficheros[x].getName());
+        }
+    }
+    
+    private Boolean verificar_origen(File origen){
+        boolean validacion=false;
+        
+        int clientes=0;
+        int articulos=0;
+        int stock=0;
+        int venta=0;
+        int ini=0;
+        
+        File[] ficheros = origen.listFiles();
+        for (int x=0;x<ficheros.length;x++){
+            String cadena = ficheros[x].getName();
+            
+            int resultadoCliente = cadena.indexOf("MASNTHG_CLIENTES.csv");
+            int resultadoArticulos = cadena.indexOf("MASNTHG_MAEART.csv");
+            int resultadoStock = cadena.indexOf("MASNTHG_MSTOCK.csv");
+            int resultadoVenta = cadena.indexOf("MASNTHG_MVTA.csv");
+            int resultadoini = cadena.indexOf("MASNTHG.ini");
+
+            if(resultadoCliente != -1) {
+                clientes++;
+                archivos.setNombre_archivo_MASNTHG_CLIENTES(cadena);
+                archivos.setRuta_archivo_MASNTHG_CLIENTES(ficheros[x].getAbsolutePath());
+            }
+            if(resultadoArticulos != -1) {
+                articulos++;
+                archivos.setNombre_archivo_MASNTHG_MAEART(cadena);
+                archivos.setRuta_archivo_MASNTHG_MAEART(ficheros[x].getAbsolutePath());
+            }
+            if(resultadoStock != -1) {
+                stock++;
+                archivos.setNombre_archivo_MASNTHG_MSTOCK(cadena);
+                archivos.setRuta_archivo_MASNTHG_MSTOCK(ficheros[x].getAbsolutePath());
+            }
+            if(resultadoVenta != -1) {
+                venta++;
+                archivos.setNombre_archivo_MASNTHG_MVTA(cadena);
+                archivos.setRuta_archivo_MASNTHG_MVTA(ficheros[x].getAbsolutePath());
+            }
+            if(resultadoini != -1) {
+                ini++;
+                archivos.setNombre_archivo_MASNTHG(cadena);
+                archivos.setRuta_archivo_MASNTHG(ficheros[x].getAbsolutePath());
+            }
+        }
+        validarCantidad(clientes, "MASNTHG_CLIENTES");
+        validarCantidad(articulos, "MASNTHG_MAEART");
+        validarCantidad(stock, "MASNTHG_MSTOCK");
+        validarCantidad(venta, "MASNTHG_MVTA");
+        validarCantidad(ini, "MASNTHG");
+        
+        
+        if(clientes==1 && articulos==1 && stock ==1 && venta==1 && ini==1){
+            validacion=true;
+        }else{
+             jTextArea1.append("\n archivos duplicados verifique los archivos en la carpeta origen");
+        }
+        
+        return validacion;
+    }
+    
+    
+    private void validarCantidad (int cantidad, String archivo){
+        if(cantidad==1){
+            jTextArea1.append("\n archivo "+archivo+" OK");
+        }else{
+            jTextArea1.append("\n archivo "+archivo+" no encontrado o duplicado");
+        }
+    }
     
     private String abrirBuscadorArchivo()
     {
@@ -253,6 +385,19 @@ public class ventana_principal extends javax.swing.JFrame {
             prop.setProperty(propiedad, valor);
 
             prop.store(new FileWriter("src/importador/config.properties"),"ultima actualizacion");
+        } catch(IOException e) {
+                System.out.println(e.toString());
+        }
+    }
+    
+    private void get_inicio_propiedades(){
+        Properties prop = new Properties();
+        InputStream is = null;
+        try {
+            is = new FileInputStream("src/importador/config.properties");
+            prop.load(is);
+             jLabel2.setText(prop.getProperty("origen"));
+             jLabel3.setText(prop.getProperty("destino"));
         } catch(IOException e) {
                 System.out.println(e.toString());
         }
@@ -314,5 +459,5 @@ public class ventana_principal extends javax.swing.JFrame {
     private javax.swing.JMenuItem saveAsMenuItem;
     private javax.swing.JMenuItem saveMenuItem;
     // End of variables declaration//GEN-END:variables
-
+    
 }
