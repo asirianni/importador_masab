@@ -5,12 +5,21 @@
  */
 package importador;
 
+
+import com.csvreader.CsvReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
+import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -22,6 +31,10 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class ventana_principal extends javax.swing.JFrame {
     
     AOrigen archivos = new AOrigen();
+    Calendar fecha = Calendar.getInstance();
+    int anio = fecha.get(Calendar.YEAR);
+    int mes = fecha.get(Calendar.MONTH) + 1;
+    int dia = fecha.get(Calendar.DAY_OF_MONTH);
     
     /**
      * Creates new form ventana_principal
@@ -48,6 +61,7 @@ public class ventana_principal extends javax.swing.JFrame {
         jButton6 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
+        jCheckBox1 = new javax.swing.JCheckBox();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         openMenuItem = new javax.swing.JMenuItem();
@@ -101,6 +115,13 @@ public class ventana_principal extends javax.swing.JFrame {
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
+
+        jCheckBox1.setText("solo productos unilever");
+        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox1ActionPerformed(evt);
+            }
+        });
 
         fileMenu.setMnemonic('f');
         fileMenu.setText("File");
@@ -172,7 +193,7 @@ public class ventana_principal extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 835, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -183,7 +204,10 @@ public class ventana_principal extends javax.swing.JFrame {
                                 .addComponent(jButton5)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel3))
-                            .addComponent(jButton6))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jButton6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jCheckBox1)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -199,7 +223,9 @@ public class ventana_principal extends javax.swing.JFrame {
                     .addComponent(jButton5)
                     .addComponent(jLabel3))
                 .addGap(18, 18, 18)
-                .addComponent(jButton6)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton6)
+                    .addComponent(jCheckBox1))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 141, Short.MAX_VALUE)
                 .addContainerGap())
@@ -258,7 +284,94 @@ public class ventana_principal extends javax.swing.JFrame {
                         jTextArea1.append("\n ruta: "+archivos.getRuta_archivo_MASNTHG_MSTOCK());
                         jTextArea1.append("\n nombre: "+archivos.getNombre_archivo_MASNTHG_MVTA());
                         jTextArea1.append("\n ruta: "+archivos.getRuta_archivo_MASNTHG_MVTA());
-                    };
+                        
+                        //generar CADPROD---------------------------------------------------------------------------------------------------------------
+                        
+                        String ficheroCadProd=generar_ruta_archivo(sDirectorDestino, "ACC_CADPROD");
+                        jTextArea1.append("\n fichero creado: "+ficheroCadProd);
+                        File archivoCadProd = new File(ficheroCadProd);
+                        BufferedWriter cadProd;
+
+                        String cod_cliente_cod_prod="30710665466";
+                        String fecha_cod_prod=obtenerFechaFormateada();
+                        cadProd = new BufferedWriter(new FileWriter(archivoCadProd));
+
+                        cadProd.write("H;"+cod_cliente_cod_prod+";"+fecha_cod_prod+";"+fecha_cod_prod);
+
+                        cadProd.newLine();
+
+                        try {
+                            CsvReader csvReaderCodArt = new CsvReader(new FileReader(archivos.getRuta_archivo_MASNTHG_MAEART()));
+                            csvReaderCodArt.readHeaders();
+
+                            while (csvReaderCodArt.readRecord()) {
+                                if(true){
+                                    if(csvReaderCodArt.get(8).equals("00104")){
+                                        generarLineaCadProd(csvReaderCodArt, cadProd);
+                                    }
+                                }else{
+                                    generarLineaCadProd(csvReaderCodArt, cadProd);
+                                }   
+                            }
+                            csvReaderCodArt.close();
+                        } catch (FileNotFoundException ex) {
+                            Logger.getLogger(Importador.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        cadProd.write("E");
+
+                        cadProd.close();
+                        
+                        //generar SELLOUT-----------------------------------------------------------------------------------------------------------
+                        String fichero=generar_ruta_archivo(sDirectorDestino, "ACC_SELLOUT");
+                        jTextArea1.append("\n fichero creado: "+fichero);
+                        File archivo = new File(fichero);
+                        BufferedWriter bw;
+
+                        String cod_cliente="30710665466";
+                        String fecha=obtenerFechaFormateada();
+                        bw = new BufferedWriter(new FileWriter(archivo));
+
+                        bw.write("H;"+cod_cliente+";"+fecha+";"+fecha);
+
+                        bw.newLine();
+
+                        try {
+                            CsvReader csvReader = new CsvReader(new FileReader(archivos.getRuta_archivo_MASNTHG_MVTA()));
+                            csvReader.readHeaders();
+
+                            while (csvReader.readRecord()) {
+                                String codigo = csvReader.get(0);
+                                String codCd="99999999999999";
+                                String codFab="77775423697546";
+                                String codBarra="7896543216668";
+                                String cantidad="1000";
+                                String valorLiquido="12000";
+                                String moneda="BRL";
+                                String identificadorTrans="1535285";
+                                String fechaTras="20150119";
+                                String tipoDeTrans="V";
+                                String tipoIdenfPDV="1";
+                                String identificadorPDV="44148564985645";
+                                String descripPDV="CLIENTE XYZ";
+                                String codPostPDV="95687412";
+                                String clasifPDV="OTROS";
+                                String vendedor="2 - MARCIO SILVA";
+
+                                bw.write("V;"+codCd+";"+codFab+";"+codBarra+";"+cantidad+";"+valorLiquido+";"+moneda+";"+identificadorTrans+";"+fechaTras+";"+tipoDeTrans+";"+tipoIdenfPDV+";"+identificadorPDV+";"+descripPDV+";"+codPostPDV+";"+clasifPDV+";"+vendedor);
+
+                                bw.newLine();         
+                            }
+                            csvReader.close();
+                        } catch (FileNotFoundException ex) {
+                            Logger.getLogger(Importador.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
+                        bw.newLine();
+                        bw.write("E");
+
+                        bw.close();
+                        
+                    }
                 }else {  
                     jTextArea1.append("\n no existe el directorio destino");
                 }
@@ -274,6 +387,10 @@ public class ventana_principal extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jButton6ActionPerformed
 
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCheckBox1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -283,6 +400,28 @@ public class ventana_principal extends javax.swing.JFrame {
         for (int x=0;x<ficheros.length;x++){
            jTextArea1.append("\n"+ficheros[x].getName());
         }
+    }
+    
+    private String obtenerFechaFormateada(){
+        
+        String mesFormateado=String.valueOf(mes);
+        String diaFormateado=String.valueOf(dia);
+        String anioFormateado=String.valueOf(anio);
+
+        if(mes<10){
+            mesFormateado="0"+mes;
+        }
+        
+        if(dia<10){
+            diaFormateado="0"+dia;
+        }
+        return anioFormateado+mesFormateado+diaFormateado;
+    }
+    
+    private String generar_ruta_archivo(String directorio, String nombre){
+        
+        String ruta=directorio+"\\"+nombre+"_"+obtenerFechaFormateada()+".txt";
+        return ruta;
     }
     
     private Boolean verificar_origen(File origen){
@@ -346,6 +485,74 @@ public class ventana_principal extends javax.swing.JFrame {
         return validacion;
     }
     
+    private void generarLineaCadProd (CsvReader csvReaderCodArt, BufferedWriter cadProd) throws IOException{
+
+        String codFab="30501092696";
+        String descFab="UNILEVER DE ARGENTINA S.A.";
+        String codProd=csvReaderCodArt.get(1);
+        String descProd=csvReaderCodArt.get(2);
+        String codGrup=csvReaderCodArt.get(6);
+        String descGroup=csvReaderCodArt.get(7);
+        String codFam="";
+        String descFam="";
+        String codSubFam="";
+        String descSubFam="";
+        String codBarra=csvReaderCodArt.get(3);
+        String tipoEmbalaje=csvReaderCodArt.get(39);
+        String volEmbalaje=generarVolEmbalaje(csvReaderCodArt.get(38));
+        String estatusProd="A";
+        String fechaRegistro=generarFechaRegistro(csvReaderCodArt.get(54));
+        cadProd.write("V;"+codFab+";"+descFab+";"+codProd+";"+descProd+";"+codGrup+";"+descGroup+";"+codFam+";"+descFam+";"+codSubFam+";"+descSubFam+";E;"+codBarra+";"+tipoEmbalaje+";UN;"+volEmbalaje+";"+estatusProd+";"+fechaRegistro);
+        cadProd.newLine(); 
+    }
+    
+    private boolean isNumeric(String cadena){
+	try {
+		Integer.parseInt(cadena);
+		return true;
+	} catch (NumberFormatException nfe){
+		return false;
+	}
+}
+    
+    private String generarVolEmbalaje(String cant){
+        int cantidad = 0;
+        if(isNumeric(cant)){
+             cantidad = Integer.valueOf(cant);
+             cantidad=cantidad*1000;
+        }
+        return String.valueOf(cantidad);
+        
+    }
+    
+    private String generarFechaRegistro(String dias){
+        String fechaSeleccionada="";
+        int diasSumados=Integer.valueOf(dias);
+        Calendar cal = Calendar.getInstance();
+        cal.set(1800,10,10,7,0,0);
+        cal.add(Calendar.DAY_OF_MONTH, diasSumados); 
+        
+        int anio_selected = cal.get(Calendar.YEAR);
+        int mes_selected = cal.get(Calendar.MONTH) + 1;
+        int dia_selected = cal.get(Calendar.DAY_OF_MONTH);
+        
+        String mesFormateado=String.valueOf(mes_selected);
+        String diaFormateado=String.valueOf(dia_selected);
+        String anioFormateado=String.valueOf(anio_selected);
+        
+        if(mes_selected<10){
+            mesFormateado="0"+mes_selected;
+        }
+        
+        if(dia_selected<10){
+            diaFormateado="0"+dia_selected;
+        }
+        
+        
+        fechaSeleccionada=anioFormateado+mesFormateado+diaFormateado;
+        
+        return fechaSeleccionada;
+    }
     
     private void validarCantidad (int cantidad, String archivo){
         if(cantidad==1){
@@ -449,6 +656,7 @@ public class ventana_principal extends javax.swing.JFrame {
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
