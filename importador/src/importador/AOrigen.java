@@ -15,11 +15,29 @@ public class AOrigen {
     private String ruta_archivo_MASNTHG_MSTOCK;
     private String ruta_archivo_MASNTHG_MVTA;
     private String ruta_archivo_MASNTHG;
+    private String ruta_archivo_MASNTHG_VENDEDOR;
     private String nombre_archivo_MASNTHG_CLIENTES;
     private String nombre_archivo_MASNTHG_MAEART;
     private String nombre_archivo_MASNTHG_MSTOCK;
     private String nombre_archivo_MASNTHG_MVTA;
     private String nombre_archivo_MASNTHG;
+    private String nombre_archivo_MASNTHG_VENDEDOR;
+
+    public String getRuta_archivo_MASNTHG_VENDEDOR() {
+        return ruta_archivo_MASNTHG_VENDEDOR;
+    }
+
+    public void setRuta_archivo_MASNTHG_VENDEDOR(String ruta_archivo_MASNTHG_VENDEDOR) {
+        this.ruta_archivo_MASNTHG_VENDEDOR = ruta_archivo_MASNTHG_VENDEDOR;
+    }
+
+    public String getNombre_archivo_MASNTHG_VENDEDOR() {
+        return nombre_archivo_MASNTHG_VENDEDOR;
+    }
+
+    public void setNombre_archivo_MASNTHG_VENDEDOR(String nombre_archivo_MASNTHG_VENDEDOR) {
+        this.nombre_archivo_MASNTHG_VENDEDOR = nombre_archivo_MASNTHG_VENDEDOR;
+    }
 
     public String getRuta_archivo_MASNTHG_CLIENTES() {
         return ruta_archivo_MASNTHG_CLIENTES;

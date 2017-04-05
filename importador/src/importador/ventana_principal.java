@@ -7,6 +7,7 @@ package importador;
 
 
 import com.csvreader.CsvReader;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,7 +16,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -35,6 +41,11 @@ public class ventana_principal extends javax.swing.JFrame {
     int anio = fecha.get(Calendar.YEAR);
     int mes = fecha.get(Calendar.MONTH) + 1;
     int dia = fecha.get(Calendar.DAY_OF_MONTH);
+    ArrayList<Productos> productos = new ArrayList<Productos>();
+    ArrayList<Clientes> clientes = new ArrayList<Clientes>();
+    ArrayList<Vendedores> vendedores = new ArrayList<Vendedores>();
+    
+    String[] listaProductosSeleccionados=new String[10000];
     
     /**
      * Creates new form ventana_principal
@@ -301,9 +312,22 @@ public class ventana_principal extends javax.swing.JFrame {
                         cadProd.newLine();
 
                         try {
+                            //con el siguiente codigo se recorre los articulos para poder generar el cadprod
                             CsvReader csvReaderCodArt = new CsvReader(new FileReader(archivos.getRuta_archivo_MASNTHG_MAEART()));
                             csvReaderCodArt.readHeaders();
-
+                            //con la linea siguiente cargo los productos de unilever en un arreglo para consultar en otros archivos
+                            CsvReader csvReaderCodAllArt = new CsvReader(new FileReader(archivos.getRuta_archivo_MASNTHG_MAEART()));
+                            csvReaderCodAllArt.readHeaders();
+                            generar_productos(csvReaderCodAllArt);
+                            //con las siguientes lineas cargo los datos del cliente en un arreglo de objetos de tipo cliente.
+                            CsvReader csvReaderClientes= new CsvReader(new FileReader(archivos.getRuta_archivo_MASNTHG_CLIENTES()));
+                            csvReaderClientes.readHeaders();
+                            generar_clientes(csvReaderClientes);
+                            //con las siguientes lineas cargo los datos de los vendedores
+                            CsvReader csvReaderVendedores= new CsvReader(new FileReader(archivos.getRuta_archivo_MASNTHG_VENDEDOR()));
+                            csvReaderVendedores.readHeaders();
+                            generar_vendedores(csvReaderVendedores);
+                            
                             while (csvReaderCodArt.readRecord()) {
                                 if(true){
                                     if(csvReaderCodArt.get(8).equals("00104")){
@@ -321,6 +345,57 @@ public class ventana_principal extends javax.swing.JFrame {
 
                         cadProd.close();
                         
+                         //generar CADSITE---------------------------------------------------------------------------------------------------------------
+                        String ficheroCadSite=generar_ruta_archivo(sDirectorDestino, "ACC_CADSITE");
+                        jTextArea1.append("\n fichero creado: "+ficheroCadSite);
+                        File archivoCadSite = new File(ficheroCadSite);
+                        BufferedWriter cadSite;
+
+                        String cod_cliente_cod_site="30710665466";
+                        String fecha_cod_site=obtenerFechaFormateada();
+                        cadSite = new BufferedWriter(new FileWriter(archivoCadSite));
+
+                        cadSite.write("H;"+cod_cliente_cod_site+";"+fecha_cod_site);
+
+                        cadSite.newLine();
+                        
+                        boolean tienda_uno=true;
+                        
+                        if(tienda_uno){
+                            String cod_tienda1 ="30710665466";
+                            String desc_tienda1="masabores";
+                            String estado_tienda1="HG";
+                            String ciudad_tienda1="cordoba";
+                            String barrio_tienda1="punilla";
+                            String codigo_postal_tienda1="5174";
+                            String estado_tienda_1="CD";
+
+                            cadSite.write("V;"+cod_tienda1+";"+desc_tienda1+";"+estado_tienda1+";"+ciudad_tienda1+";"+barrio_tienda1+";"+codigo_postal_tienda1+";"+estado_tienda_1);
+
+                            cadSite.newLine();
+                        }
+                        
+                        boolean tienda_dos=true;
+                        
+                        if(tienda_dos){
+                            String cod_tienda2 ="30710665466";
+                            String desc_tienda2="masabores";
+                            String estado_tienda2="LF";
+                            String ciudad_tienda2="cordoba";
+                            String barrio_tienda2="punilla";
+                            String codigo_postal_tienda2="5172";
+                            String estado_tienda_2="CD";
+
+                            cadSite.write("V;"+cod_tienda2+";"+desc_tienda2+";"+estado_tienda2+";"+ciudad_tienda2+";"+barrio_tienda2+";"+codigo_postal_tienda2+";"+estado_tienda_2);
+
+                            cadSite.newLine();
+                        }
+
+                        cadSite.write("E");
+
+                        cadSite.close();
+                        
+                        
                         //generar SELLOUT-----------------------------------------------------------------------------------------------------------
                         String fichero=generar_ruta_archivo(sDirectorDestino, "ACC_SELLOUT");
                         jTextArea1.append("\n fichero creado: "+fichero);
@@ -331,44 +406,72 @@ public class ventana_principal extends javax.swing.JFrame {
                         String fecha=obtenerFechaFormateada();
                         bw = new BufferedWriter(new FileWriter(archivo));
 
-                        bw.write("H;"+cod_cliente+";"+fecha+";"+fecha);
-
-                        bw.newLine();
+                        
 
                         try {
-                            CsvReader csvReader = new CsvReader(new FileReader(archivos.getRuta_archivo_MASNTHG_MVTA()));
+                            
+                            String linea_cabecera="H;"+cod_cliente+";"+generarCabeceraSellOut();
+                            
+                            bw.write(linea_cabecera);
+
+                            bw.newLine();
+                            CsvReader csvReader = new CsvReader(new FileReader(archivos.getRuta_archivo_MASNTHG_MSTOCK()));
                             csvReader.readHeaders();
 
                             while (csvReader.readRecord()) {
-                                String codigo = csvReader.get(0);
-                                String codCd="99999999999999";
-                                String codFab="77775423697546";
-                                String codBarra="7896543216668";
-                                String cantidad="1000";
-                                String valorLiquido="12000";
-                                String moneda="BRL";
-                                String identificadorTrans="1535285";
-                                String fechaTras="20150119";
-                                String tipoDeTrans="V";
-                                String tipoIdenfPDV="1";
-                                String identificadorPDV="44148564985645";
-                                String descripPDV="CLIENTE XYZ";
-                                String codPostPDV="95687412";
-                                String clasifPDV="OTROS";
-                                String vendedor="2 - MARCIO SILVA";
+                                
+                                
+                                if(estaEnArrayProductosSeleccionados(csvReader.get(12))){
+                                    if(csvReader.get(8).equals("1")){
+                                        if(csvReader.get(7).equals("01") || csvReader.get(7).equals("02") || csvReader.get(7).equals("12")){
+                                                                                    
+     //                                String codCd="99999999999999";
+     //                                String codFab="77775423697546";
+     //                                String codBarra="7896543216668";
+    //                                String cantidad="1000";
+    //                                String valorLiquido="12000";
+    //                                String moneda="BRL";
+    //                                String identificadorTrans="1535285";
+    //                                String fechaTras="20150119";
+    //                                String tipoDeTrans="V";
+    //                                String tipoIdenfPDV="1";
+    //                                String identificadorPDV="44148564985645";
+    //                                String descripPDV="CLIENTE XYZ";
+    //                                String codPostPDV="95687412";
+    //                                String clasifPDV="OTROS";
+    //                                String vendedor="2 - MARCIO SILVA";
+                                            String codCd="30710665466";
+                                            String codFab="30501092696";
+                                            String codBarra=csvReader.get(51);
+                                            String cantidad=generarVolEmbalaje(csvReader.get(14));
+                                            String valorLiquido=generarValorLiquido(csvReader.get(14), csvReader.get(17));
+                                            String moneda="ARS";
+                                            
+                                            String selectoIdentificador=csvReader.get(3)+csvReader.get(4)+csvReader.get(5);
+                                            
+                                            String identificadorTrans=selectoIdentificador;
+                                            String fechaTras=generarFechaRegistro(csvReader.get(0));
+                                            String tipoDeTrans=tipoTransaccion(csvReader.get(7));
+                                            
+                                            String tipoIdenfPDV="1";
+                                            String identificadorPDV=obtener_cuil_cliente(csvReader.get(1));
+                                            String descripPDV=csvReader.get(2);
+                                            String codPostPDV=obtener_cod_postal(csvReader.get(1));
+                                            String clasifPDV="OTROS";
+                                            String vendedor=obtener_vendedor(csvReader.get(9));
 
-                                bw.write("V;"+codCd+";"+codFab+";"+codBarra+";"+cantidad+";"+valorLiquido+";"+moneda+";"+identificadorTrans+";"+fechaTras+";"+tipoDeTrans+";"+tipoIdenfPDV+";"+identificadorPDV+";"+descripPDV+";"+codPostPDV+";"+clasifPDV+";"+vendedor);
+                                            bw.write("V;"+codCd+";"+codFab+";"+codBarra+";"+cantidad+";"+valorLiquido+";"+moneda+";"+identificadorTrans+";"+fechaTras+";"+tipoDeTrans+";"+tipoIdenfPDV+";"+identificadorPDV+";"+descripPDV+";"+codPostPDV+";"+clasifPDV+";"+vendedor);
 
-                                bw.newLine();         
+                                            bw.newLine(); 
+                                        }
+                                    }
+                                }
                             }
                             csvReader.close();
                         } catch (FileNotFoundException ex) {
                             Logger.getLogger(Importador.class.getName()).log(Level.SEVERE, null, ex);
                         }
-
-                        bw.newLine();
                         bw.write("E");
-
                         bw.close();
                         
                     }
@@ -394,12 +497,26 @@ public class ventana_principal extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
+    public boolean estaEnArrayProductosSeleccionados(String numero){
+        return Arrays.asList(listaProductosSeleccionados).contains(numero);
+    }
     
     private void mostrarArchivosFichero(File origen){
         File[] ficheros = origen.listFiles();
         for (int x=0;x<ficheros.length;x++){
            jTextArea1.append("\n"+ficheros[x].getName());
         }
+    }
+    
+    private String tipoTransaccion(String tipo){
+        String dato = "V";
+        if(tipo.equals("02")){
+            dato="DV";
+        }
+        if(tipo.equals("12")){
+            dato="B";
+        }
+        return dato;        
     }
     
     private String obtenerFechaFormateada(){
@@ -432,6 +549,7 @@ public class ventana_principal extends javax.swing.JFrame {
         int stock=0;
         int venta=0;
         int ini=0;
+        int vendedor=0;
         
         File[] ficheros = origen.listFiles();
         for (int x=0;x<ficheros.length;x++){
@@ -441,6 +559,7 @@ public class ventana_principal extends javax.swing.JFrame {
             int resultadoArticulos = cadena.indexOf("MASNTHG_MAEART.csv");
             int resultadoStock = cadena.indexOf("MASNTHG_MSTOCK.csv");
             int resultadoVenta = cadena.indexOf("MASNTHG_MVTA.csv");
+            int resultadoVendedor = cadena.indexOf("MASNTHG_VENDEDOR.csv");
             int resultadoini = cadena.indexOf("MASNTHG.ini");
 
             if(resultadoCliente != -1) {
@@ -468,15 +587,20 @@ public class ventana_principal extends javax.swing.JFrame {
                 archivos.setNombre_archivo_MASNTHG(cadena);
                 archivos.setRuta_archivo_MASNTHG(ficheros[x].getAbsolutePath());
             }
+            if(resultadoVendedor != -1) {
+                vendedor++;
+                archivos.setNombre_archivo_MASNTHG_VENDEDOR(cadena);
+                archivos.setRuta_archivo_MASNTHG_VENDEDOR(ficheros[x].getAbsolutePath());
+            }
         }
         validarCantidad(clientes, "MASNTHG_CLIENTES");
         validarCantidad(articulos, "MASNTHG_MAEART");
         validarCantidad(stock, "MASNTHG_MSTOCK");
         validarCantidad(venta, "MASNTHG_MVTA");
         validarCantidad(ini, "MASNTHG");
+        validarCantidad(vendedor, "MASNTHG_VENDEDOR");
         
-        
-        if(clientes==1 && articulos==1 && stock ==1 && venta==1 && ini==1){
+        if(clientes==1 && articulos==1 && stock ==1 && venta==1 && ini==1 && vendedor==1){
             validacion=true;
         }else{
              jTextArea1.append("\n archivos duplicados verifique los archivos en la carpeta origen");
@@ -506,6 +630,118 @@ public class ventana_principal extends javax.swing.JFrame {
         cadProd.newLine(); 
     }
     
+    private String generarCabeceraSellOut() throws IOException{
+        String fecha="";
+        ArrayList fechas=new ArrayList();
+        String fecha_desde="";
+        String fecha_hasta="";
+        try {
+                CsvReader csvReader = new CsvReader(new FileReader(archivos.getRuta_archivo_MASNTHG_MSTOCK()));
+                csvReader.readHeaders();
+
+                while (csvReader.readRecord()) {
+                    if(estaEnArrayProductosSeleccionados(csvReader.get(12))){
+                        if(csvReader.get(8).equals("1")){
+                            if(csvReader.get(7).equals("01") || csvReader.get(7).equals("02") || csvReader.get(7).equals("12")){
+                                int fechaSeleccionada=Integer.valueOf(generarFechaRegistro(csvReader.get(0)));
+                                fechas.add(fechaSeleccionada);
+                                
+                                
+                            }
+                        }
+                    }
+                }
+                Comparator<Integer> comparador = Collections.reverseOrder();
+                Collections.sort(fechas, comparador);
+                fecha_desde = String.valueOf(fechas.get(fechas.size() -1));
+                fecha_hasta = String.valueOf(fechas.get(0));
+                csvReader.close();
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(Importador.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            fecha=fecha_desde+";"+fecha_hasta;
+            return fecha;
+        }
+    
+    
+    
+    private void generar_productos(CsvReader  csvReaderCodArt) throws IOException{
+        int indice=0;
+        while (csvReaderCodArt.readRecord()) {
+              if(csvReaderCodArt.get(8).equals("00104")){
+//                  Productos p = new Productos();
+//                  p.setCodigo_producto(csvReaderCodArt.get(1));
+//                  p.setCodigo_proveedor("00104");
+//                  p.setDescripcion_producto(csvReaderCodArt.get(2));
+//                  productos.add(p);
+                  listaProductosSeleccionados[indice]=csvReaderCodArt.get(1);
+                  indice++;
+              }
+        }
+    }
+    
+    private void generar_clientes(CsvReader  csvReaderClientes) throws IOException{
+        
+        while (csvReaderClientes.readRecord()) {
+            Clientes c = new Clientes();
+            c.setCodigo(csvReaderClientes.get(1));
+            c.setCuil(csvReaderClientes.get(10));
+            c.setApellido(csvReaderClientes.get(17));
+            c.setRazon_social(csvReaderClientes.get(2));
+            c.setCodigo_postal(csvReaderClientes.get(6));
+            clientes.add(c);
+        }
+    }
+    
+    private void generar_vendedores(CsvReader  csvReaderVendedores) throws IOException{
+        while (csvReaderVendedores.readRecord()) {  
+            Vendedores v = new Vendedores();
+            v.setCodigo(csvReaderVendedores.get(0));
+            v.setNombre(csvReaderVendedores.get(1));
+            vendedores.add(v);
+        }
+    }
+    
+    
+    private String obtener_cod_postal(String cod_cliente_masabores){
+        String codigoPostal = "99999999";
+        for (int i = 0; i < clientes.size(); i++) {
+            Clientes c= clientes.get(i);
+            if(c.getCodigo().equals(cod_cliente_masabores)){
+                if(c.getCodigo_postal()!=""){ 
+                    codigoPostal=c.getCodigo_postal();
+                }
+               
+            }
+        }
+        return codigoPostal;
+    }
+    
+    private String obtener_cuil_cliente(String cod_cliente_masabores){
+        String cuil = "00000000000000";
+        for (int i = 0; i < clientes.size(); i++) {
+            Clientes c= clientes.get(i);
+            if(c.getCodigo().equals(cod_cliente_masabores)){
+                cuil=c.getCuil();
+            }
+        }
+                
+        String remplazado=cuil.replace("-", "");
+        
+        return remplazado;
+    }
+    
+    private String obtener_vendedor(String cod_vendedor_masabores){
+        String vendedor = "0 - VENDEDOR";
+        for (int i = 0; i < vendedores.size(); i++) {
+            Vendedores v= vendedores.get(i);
+            if(v.getCodigo().equals(cod_vendedor_masabores)){
+                vendedor=v.getCodigo()+" - "+v.getNombre();
+            }
+        }
+        return vendedor;
+    }
+    
     private boolean isNumeric(String cadena){
 	try {
 		Integer.parseInt(cadena);
@@ -513,7 +749,18 @@ public class ventana_principal extends javax.swing.JFrame {
 	} catch (NumberFormatException nfe){
 		return false;
 	}
-}
+    }
+    
+    private boolean isFloat(String cadena){
+	try {
+		Float.parseFloat(cadena);
+		return true;
+	} catch (NumberFormatException nfe){
+		return false;
+	}
+    }
+    
+    
     
     private String generarVolEmbalaje(String cant){
         int cantidad = 0;
@@ -523,6 +770,35 @@ public class ventana_principal extends javax.swing.JFrame {
         }
         return String.valueOf(cantidad);
         
+    }
+    
+    private String generarValorLiquido(String cant, String pre){
+        int cantidad = 0;
+        float precio = 0;
+        float total = 0;
+        float total_formatedo=0;
+        
+        if(isNumeric(cant)){
+            if(isFloat(pre)){
+                cantidad = Integer.valueOf(cant);
+                precio = Float.valueOf(pre);
+                total=cantidad*precio;
+//                total_formatedo = Math.round(total * 100.0) / 100.0;
+                total_formatedo=round(total, 2);
+            }
+             
+        }
+        
+        total_formatedo = total_formatedo*100;
+        int total_convertido = (int)total_formatedo;
+        return String.valueOf(total_convertido);
+        
+    }
+    
+    public float round(float d, int decimalPlace) {
+        BigDecimal bd = new BigDecimal(Float.toString(d));
+        bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+        return bd.floatValue();
     }
     
     private String generarFechaRegistro(String dias){
