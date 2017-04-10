@@ -7,7 +7,7 @@ package importador;
 
 
 import com.csvreader.CsvReader;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+//import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,13 +22,13 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
+//import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+//import java.util.logging.Level;
+//import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.filechooser.FileNameExtensionFilter;
+//import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -72,7 +72,6 @@ public class ventana_principal extends javax.swing.JFrame {
         jButton6 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
-        jCheckBox1 = new javax.swing.JCheckBox();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         openMenuItem = new javax.swing.JMenuItem();
@@ -126,13 +125,6 @@ public class ventana_principal extends javax.swing.JFrame {
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
-
-        jCheckBox1.setText("solo productos unilever");
-        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox1ActionPerformed(evt);
-            }
-        });
 
         fileMenu.setMnemonic('f');
         fileMenu.setText("File");
@@ -215,11 +207,8 @@ public class ventana_principal extends javax.swing.JFrame {
                                 .addComponent(jButton5)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel3))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jButton6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jCheckBox1)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                            .addComponent(jButton6))
+                        .addGap(0, 715, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -234,9 +223,7 @@ public class ventana_principal extends javax.swing.JFrame {
                     .addComponent(jButton5)
                     .addComponent(jLabel3))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton6)
-                    .addComponent(jCheckBox1))
+                .addComponent(jButton6)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 141, Short.MAX_VALUE)
                 .addContainerGap())
@@ -271,7 +258,7 @@ public class ventana_principal extends javax.swing.JFrame {
         Properties prop = new Properties();
         InputStream is = null;
         try {
-            is = new FileInputStream("src/importador/config.properties");
+            is = new FileInputStream("C:/Users/adrians/Desktop/archivos_convertidos/config.properties");
             prop.load(is);
             
             String sDirectorOrigen = prop.getProperty("origen");
@@ -339,7 +326,7 @@ public class ventana_principal extends javax.swing.JFrame {
                             }
                             csvReaderCodArt.close();
                         } catch (FileNotFoundException ex) {
-                            Logger.getLogger(Importador.class.getName()).log(Level.SEVERE, null, ex);
+//                            Logger.getLogger(Importador.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         cadProd.write("E");
 
@@ -469,10 +456,100 @@ public class ventana_principal extends javax.swing.JFrame {
                             }
                             csvReader.close();
                         } catch (FileNotFoundException ex) {
-                            Logger.getLogger(Importador.class.getName()).log(Level.SEVERE, null, ex);
+//                            Logger.getLogger(Importador.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         bw.write("E");
                         bw.close();
+                        //POSESTQ--------------------------------------------------------------------------------------------------------
+                       
+                            String ficheroPosestq=generar_ruta_archivo(sDirectorDestino, "ACC_POSESTQ");
+                            jTextArea1.append("\n fichero creado: "+ficheroPosestq);
+                            File archivoPosestq= new File(ficheroPosestq);
+                            BufferedWriter posetoc=new BufferedWriter(new FileWriter(archivoPosestq));
+                        
+                        try {
+                            String cod_cliente_pose="30710665466";
+                            String fecha_pose=obtenerFechaFormateada();
+                            
+                            posetoc.write("H;"+cod_cliente_pose+";"+fecha_pose+";"+fecha_pose);
+
+                            posetoc.newLine();
+                        
+                        
+                            //con el siguiente codigo se recorre los articulos para poder generar el pose
+                            CsvReader csvReaderCodArtPose = new CsvReader(new FileReader(archivos.getRuta_archivo_MASNTHG_MAEART()));
+                            csvReaderCodArtPose.readHeaders();
+                                while (csvReaderCodArtPose.readRecord()) {
+                                if(true){
+                                    if(csvReaderCodArtPose.get(8).equals("00104")){
+                                        generarLineaPose(csvReaderCodArtPose, posetoc);
+                                    }
+                                }else{
+                                    generarLineaPose(csvReaderCodArtPose, posetoc);
+                                }   
+                            }
+                            csvReaderCodArtPose.close();
+                        } catch (FileNotFoundException ex) {
+//                            Logger.getLogger(Importador.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        posetoc.write("E");
+
+                        posetoc.close();
+                        
+                        //generar PDV---------------------------------------------------------------------------------------------------------------
+                        String ficheroPdv=generar_ruta_archivo(sDirectorDestino, "ACC_PDVS");
+                        jTextArea1.append("\n fichero creado: "+ficheroPdv);
+                        File archivoPdv = new File(ficheroPdv);
+                        BufferedWriter pdv;
+
+                        String cod_cliente_pdv="30710665466";
+                        String fecha_pdv=obtenerFechaFormateada();
+                        pdv = new BufferedWriter(new FileWriter(archivoPdv));
+
+                        pdv.write("H;"+cod_cliente_pdv+";"+fecha_pdv);
+
+                        pdv.newLine();
+                        try{
+                            //con el siguiente codigo se recorre los articulos para poder generar el pdv
+                            CsvReader csvReaderPdv = new CsvReader(new FileReader(archivos.getRuta_archivo_MASNTHG_CLIENTES()));
+                            csvReaderPdv.readHeaders();
+                            while (csvReaderPdv.readRecord()) {
+                                String cod_tributaria =csvReaderPdv.get(10);
+                                String cod_tributariaRemplazadoGuion=cod_tributaria.replace("-", "");
+//                                String cod_tributariaRemplazadoEspacios=cod_tributariaRemplazadoGuion.replaceAll("\\s","");
+                                if(!sonEspacios(cod_tributariaRemplazadoGuion)){
+                                    String razon_social=csvReaderPdv.get(2);
+                                    String nom_comercial=csvReaderPdv.get(17);
+                                    String pais_pdv="AR"; 
+                                    String region_pdv="S";
+                                    String estado_pdv=generarEstado(csvReaderPdv.get(5));
+                                    String ciudad_pdv=csvReaderPdv.get(4);
+                                    String barrio_pdv="BARRIO";
+                                    String direccion_pdv=csvReaderPdv.get(3);
+                                    String grupo_pdv="GRUPO ABC";
+                                    String clasificacion_pdv="OTROS";
+                                    String vededo_pdv=obtener_vendedor(csvReaderPdv.get(68));
+                                    String fechareg_pdv=generarFechaRegistro(csvReaderPdv.get(61));
+                                    String cod_pos_pdv=csvReaderPdv.get(6);
+                                    String contacto_pdv=csvReaderPdv.get(8);
+                                    String estatus_pdv=generarClienteActivoInactivo(csvReaderPdv.get(46));
+
+                                    pdv.write("V;"+cod_tributariaRemplazadoGuion+";"+razon_social+";"+nom_comercial+";"+pais_pdv+";"+region_pdv+";"+estado_pdv+";"+ciudad_pdv+";"+barrio_pdv+";"+direccion_pdv+";"+grupo_pdv+";"+clasificacion_pdv+";"+vededo_pdv+";"+fechareg_pdv+";"+cod_pos_pdv+";"+contacto_pdv+";"+estatus_pdv);
+
+                                    pdv.newLine();
+                                }    
+                                
+                                
+                        
+                            }
+                            csvReaderPdv.close();
+                            } catch (FileNotFoundException ex) {
+//                            Logger.getLogger(Importador.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+
+                        pdv.write("E");
+
+                        pdv.close();
                         
                     }
                 }else {  
@@ -490,15 +567,92 @@ public class ventana_principal extends javax.swing.JFrame {
         
     }//GEN-LAST:event_jButton6ActionPerformed
 
-    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jCheckBox1ActionPerformed
-
     /**
      * @param args the command line arguments
      */
+    
+    public String generarClienteActivoInactivo(String campo){
+        String campoActivo="A";
+        if(campo.equals("S")){
+            campoActivo="I";
+        }
+        return campoActivo;
+    }
+    
+    public String generarEstado(String cod_estado){
+        String estado="CB";
+        int cod_estado_ingresado=Integer.valueOf(cod_estado);
+        if(!sonEspacios(cod_estado)){
+            switch(cod_estado_ingresado){
+                case 0:
+                    estado="CB";
+                break;
+                case 1:
+                    estado="CF";
+                break; 
+                case 2:
+                    estado="CF";
+                break;
+                case 3:
+                    estado="CB";
+                break;
+                case 4:
+                    estado="CB";
+                break;
+                case 5:
+                    estado="CF";
+                break;
+                case 6:
+                    estado="SJ";
+                break;
+                case 7:
+                    estado="CB";
+                break;
+                case 8:
+                    estado="TC";
+                break;
+                case 9:
+                    estado="SF";
+                break;
+                case 10:
+                    estado="CC";
+                break;
+                case 12:
+                    estado="BS";
+                break;
+                case 13:
+                    estado="MZ";
+                break;
+                case 14:
+                    estado="MS";
+                break;
+                case 15:
+                    estado="SL";
+                break;
+                case 19:
+                    estado="SL";
+                break;
+                case 21:
+                    estado="SF";
+                break;
+                default:
+                    estado="CB";
+                break;    
+            }
+        }
+        return estado;
+    }
+    
     public boolean estaEnArrayProductosSeleccionados(String numero){
         return Arrays.asList(listaProductosSeleccionados).contains(numero);
+    }
+    
+    public boolean sonEspacios(String cad){
+        for(int i =0; i<cad.length(); i++)
+            if(cad.charAt(i) != ' ')
+                return false;
+
+        return true;
     }
     
     private void mostrarArchivosFichero(File origen){
@@ -630,6 +784,17 @@ public class ventana_principal extends javax.swing.JFrame {
         cadProd.newLine(); 
     }
     
+    private void generarLineaPose(CsvReader csvReaderCodArt, BufferedWriter pose) throws IOException{
+
+        String codCliente="30710665466";
+        String codBarras=csvReaderCodArt.get(3);
+        String stock="0";
+        String fecha=obtenerFechaFormateada();
+        
+        pose.write("V;"+codCliente+";"+codBarras+";"+stock+";H;"+fecha);
+        pose.newLine(); 
+    }
+    
     private String generarCabeceraSellOut() throws IOException{
         String fecha="";
         ArrayList fechas=new ArrayList();
@@ -657,13 +822,11 @@ public class ventana_principal extends javax.swing.JFrame {
                 fecha_hasta = String.valueOf(fechas.get(0));
                 csvReader.close();
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(Importador.class.getName()).log(Level.SEVERE, null, ex);
+//                Logger.getLogger(Importador.class.getName()).log(Level.SEVERE, null, ex);
             }
             fecha=fecha_desde+";"+fecha_hasta;
             return fecha;
         }
-    
-    
     
     private void generar_productos(CsvReader  csvReaderCodArt) throws IOException{
         int indice=0;
@@ -701,8 +864,7 @@ public class ventana_principal extends javax.swing.JFrame {
             vendedores.add(v);
         }
     }
-    
-    
+        
     private String obtener_cod_postal(String cod_cliente_masabores){
         String codigoPostal = "99999999";
         for (int i = 0; i < clientes.size(); i++) {
@@ -759,8 +921,6 @@ public class ventana_principal extends javax.swing.JFrame {
 		return false;
 	}
     }
-    
-    
     
     private String generarVolEmbalaje(String cant){
         int cantidad = 0;
@@ -838,8 +998,7 @@ public class ventana_principal extends javax.swing.JFrame {
         }
     }
     
-    private String abrirBuscadorArchivo()
-    {
+    private String abrirBuscadorArchivo(){
         File abre;
 
         try
@@ -863,11 +1022,11 @@ public class ventana_principal extends javax.swing.JFrame {
         Properties prop = new Properties();
         InputStream is = null;
         try {
-            is = new FileInputStream("src/importador/config.properties");
+            is = new FileInputStream("C:/Users/adrians/Desktop/archivos_convertidos/config.properties");
             prop.load(is);
             prop.setProperty(propiedad, valor);
 
-            prop.store(new FileWriter("src/importador/config.properties"),"ultima actualizacion");
+            prop.store(new FileWriter("C:/Users/adrians/Desktop/archivos_convertidos/config.properties"),"ultima actualizacion");
         } catch(IOException e) {
                 System.out.println(e.toString());
         }
@@ -877,7 +1036,7 @@ public class ventana_principal extends javax.swing.JFrame {
         Properties prop = new Properties();
         InputStream is = null;
         try {
-            is = new FileInputStream("src/importador/config.properties");
+            is = new FileInputStream("C:/Users/adrians/Desktop/archivos_convertidos/config.properties");
             prop.load(is);
              jLabel2.setText(prop.getProperty("origen"));
              jLabel3.setText(prop.getProperty("destino"));
@@ -932,7 +1091,6 @@ public class ventana_principal extends javax.swing.JFrame {
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
