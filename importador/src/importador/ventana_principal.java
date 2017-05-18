@@ -258,7 +258,8 @@ public class ventana_principal extends javax.swing.JFrame {
         Properties prop = new Properties();
         InputStream is = null;
         try {
-            is = new FileInputStream("C:/Users/adrians/Desktop/archivos_convertidos/config.properties");
+//            is = new FileInputStream("C:/Users/Ignacio/Desktop/config.properties");
+            is = new FileInputStream("C:/Users/asirianni/Desktop/config.properties");
             prop.load(is);
             
             String sDirectorOrigen = prop.getProperty("origen");
@@ -294,7 +295,7 @@ public class ventana_principal extends javax.swing.JFrame {
                         String fecha_cod_prod=obtenerFechaFormateada();
                         cadProd = new BufferedWriter(new FileWriter(archivoCadProd));
 
-                        cadProd.write("H;"+cod_cliente_cod_prod+";"+fecha_cod_prod+";"+fecha_cod_prod);
+                        cadProd.write("H;"+cod_cliente_cod_prod+";"+fecha_cod_prod);
 
                         cadProd.newLine();
 
@@ -350,14 +351,14 @@ public class ventana_principal extends javax.swing.JFrame {
                         
                         if(tienda_uno){
                             String cod_tienda1 ="30710665466";
-                            String desc_tienda1="masabores";
+                            String desc_tienda1="av alvear 51";
                             String estado_tienda1="HG";
                             String ciudad_tienda1="cordoba";
                             String barrio_tienda1="punilla";
                             String codigo_postal_tienda1="5174";
                             String estado_tienda_1="CD";
 
-                            cadSite.write("V;"+cod_tienda1+";"+desc_tienda1+";"+estado_tienda1+";"+ciudad_tienda1+";"+barrio_tienda1+";"+codigo_postal_tienda1+";"+estado_tienda_1);
+                            cadSite.write("V;"+cod_tienda1+";"+desc_tienda1+";"+estado_tienda1+";"+ciudad_tienda1+";"+barrio_tienda1+";"+codigo_postal_tienda1+";"+estado_tienda_1+";A");
 
                             cadSite.newLine();
                         }
@@ -366,14 +367,14 @@ public class ventana_principal extends javax.swing.JFrame {
                         
                         if(tienda_dos){
                             String cod_tienda2 ="30710665466";
-                            String desc_tienda2="masabores";
+                            String desc_tienda2="av españa 380";
                             String estado_tienda2="LF";
                             String ciudad_tienda2="cordoba";
                             String barrio_tienda2="punilla";
                             String codigo_postal_tienda2="5172";
                             String estado_tienda_2="CD";
 
-                            cadSite.write("V;"+cod_tienda2+";"+desc_tienda2+";"+estado_tienda2+";"+ciudad_tienda2+";"+barrio_tienda2+";"+codigo_postal_tienda2+";"+estado_tienda_2);
+                            cadSite.write("V;"+cod_tienda2+";"+desc_tienda2+";"+estado_tienda2+";"+ciudad_tienda2+";"+barrio_tienda2+";"+codigo_postal_tienda2+";"+estado_tienda_2+";A");
 
                             cadSite.newLine();
                         }
@@ -788,10 +789,11 @@ public class ventana_principal extends javax.swing.JFrame {
 
         String codCliente="30710665466";
         String codBarras=csvReaderCodArt.get(3);
+        String codProveedor="30501092696";
         String stock="0";
         String fecha=obtenerFechaFormateada();
         
-        pose.write("V;"+codCliente+";"+codBarras+";"+stock+";H;"+fecha);
+        pose.write("V;"+codCliente+";"+codProveedor+";"+codBarras+";"+stock+";H;"+fecha);
         pose.newLine(); 
     }
     
@@ -987,6 +989,10 @@ public class ventana_principal extends javax.swing.JFrame {
         
         fechaSeleccionada=anioFormateado+mesFormateado+diaFormateado;
         
+        if(Integer.valueOf(fechaSeleccionada) <= 20140101){
+            fechaSeleccionada="20140101";
+        }
+        
         return fechaSeleccionada;
     }
     
@@ -1022,11 +1028,13 @@ public class ventana_principal extends javax.swing.JFrame {
         Properties prop = new Properties();
         InputStream is = null;
         try {
-            is = new FileInputStream("C:/Users/adrians/Desktop/archivos_convertidos/config.properties");
+//            is = new FileInputStream("C:/Users/Ignacio/Desktop/config.properties");
+            is = new FileInputStream("C:/Users/asirianni/Desktop/config.properties");
             prop.load(is);
             prop.setProperty(propiedad, valor);
 
-            prop.store(new FileWriter("C:/Users/adrians/Desktop/archivos_convertidos/config.properties"),"ultima actualizacion");
+//            prop.store(new FileWriter("C:/Users/Ignacio/Desktop/config.properties"),"ultima actualizacion");
+            prop.store(new FileWriter("C:/Users/asirianni/Desktop/config.properties"),"ultima actualizacion");
         } catch(IOException e) {
                 System.out.println(e.toString());
         }
@@ -1036,7 +1044,8 @@ public class ventana_principal extends javax.swing.JFrame {
         Properties prop = new Properties();
         InputStream is = null;
         try {
-            is = new FileInputStream("C:/Users/adrians/Desktop/archivos_convertidos/config.properties");
+//            is = new FileInputStream("C:/Users/Ignacio/Desktop/config.properties");
+            is = new FileInputStream("C:/Users/asirianni/Desktop/config.properties");
             prop.load(is);
              jLabel2.setText(prop.getProperty("origen"));
              jLabel3.setText(prop.getProperty("destino"));
