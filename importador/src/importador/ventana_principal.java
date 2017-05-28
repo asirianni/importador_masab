@@ -258,8 +258,8 @@ public class ventana_principal extends javax.swing.JFrame {
         Properties prop = new Properties();
         InputStream is = null;
         try {
-//            is = new FileInputStream("C:/Users/Ignacio/Desktop/config.properties");
-            is = new FileInputStream("C:/Users/asirianni/Desktop/config.properties");
+            is = new FileInputStream("C:/Users/Ignacio/Desktop/config.properties");
+//            is = new FileInputStream("C:/Users/asirianni/Desktop/config.properties");
             prop.load(is);
             
             String sDirectorOrigen = prop.getProperty("origen");
@@ -351,14 +351,14 @@ public class ventana_principal extends javax.swing.JFrame {
                         
                         if(tienda_uno){
                             String cod_tienda1 ="30710665466";
-                            String desc_tienda1="av alvear 51";
-                            String estado_tienda1="HG";
+                            String desc_tienda1="masabores mayorista sa la falda";
+                            String estado_tienda1="CD";
                             String ciudad_tienda1="cordoba";
                             String barrio_tienda1="punilla";
                             String codigo_postal_tienda1="5174";
                             String estado_tienda_1="CD";
 
-                            cadSite.write("V;"+cod_tienda1+";"+desc_tienda1+";"+estado_tienda1+";"+ciudad_tienda1+";"+barrio_tienda1+";"+codigo_postal_tienda1+";"+estado_tienda_1+";A");
+                            cadSite.write("V;"+cod_tienda1+";"+desc_tienda1+";"+estado_tienda1+";"+ciudad_tienda1+";"+barrio_tienda1+";"+codigo_postal_tienda1+";"+"A");
 
                             cadSite.newLine();
                         }
@@ -367,14 +367,14 @@ public class ventana_principal extends javax.swing.JFrame {
                         
                         if(tienda_dos){
                             String cod_tienda2 ="30710665466";
-                            String desc_tienda2="av españa 380";
-                            String estado_tienda2="LF";
+                            String desc_tienda2="masabores mayorista sa huerta grande";
+                            String estado_tienda2="CD";
                             String ciudad_tienda2="cordoba";
                             String barrio_tienda2="punilla";
                             String codigo_postal_tienda2="5172";
                             String estado_tienda_2="CD";
 
-                            cadSite.write("V;"+cod_tienda2+";"+desc_tienda2+";"+estado_tienda2+";"+ciudad_tienda2+";"+barrio_tienda2+";"+codigo_postal_tienda2+";"+estado_tienda_2+";A");
+                            cadSite.write("V;"+cod_tienda2+";"+desc_tienda2+";"+estado_tienda2+";"+ciudad_tienda2+";"+barrio_tienda2+";"+codigo_postal_tienda2+";"+"A");
 
                             cadSite.newLine();
                         }
@@ -516,6 +516,7 @@ public class ventana_principal extends javax.swing.JFrame {
                             csvReaderPdv.readHeaders();
                             while (csvReaderPdv.readRecord()) {
                                 String cod_tributaria =csvReaderPdv.get(10);
+                                String cod_masabores_unilever=csvReaderPdv.get(1);
                                 String cod_tributariaRemplazadoGuion=cod_tributaria.replace("-", "");
 //                                String cod_tributariaRemplazadoEspacios=cod_tributariaRemplazadoGuion.replaceAll("\\s","");
                                 if(!sonEspacios(cod_tributariaRemplazadoGuion)){
@@ -535,7 +536,7 @@ public class ventana_principal extends javax.swing.JFrame {
                                     String contacto_pdv=csvReaderPdv.get(8);
                                     String estatus_pdv=generarClienteActivoInactivo(csvReaderPdv.get(46));
 
-                                    pdv.write("V;"+cod_tributariaRemplazadoGuion+";"+razon_social+";"+nom_comercial+";"+pais_pdv+";"+region_pdv+";"+estado_pdv+";"+ciudad_pdv+";"+barrio_pdv+";"+direccion_pdv+";"+grupo_pdv+";"+clasificacion_pdv+";"+vededo_pdv+";"+fechareg_pdv+";"+cod_pos_pdv+";"+contacto_pdv+";"+estatus_pdv);
+                                    pdv.write("V;"+cod_tributariaRemplazadoGuion+cod_masabores_unilever+";"+razon_social+";"+nom_comercial+";"+pais_pdv+";"+region_pdv+";"+estado_pdv+";"+ciudad_pdv+";"+barrio_pdv+";"+direccion_pdv+";"+grupo_pdv+";"+clasificacion_pdv+";"+vededo_pdv+";"+fechareg_pdv+";"+cod_pos_pdv+";"+contacto_pdv+";"+estatus_pdv);
 
                                     pdv.newLine();
                                 }    
@@ -854,6 +855,8 @@ public class ventana_principal extends javax.swing.JFrame {
             c.setApellido(csvReaderClientes.get(17));
             c.setRazon_social(csvReaderClientes.get(2));
             c.setCodigo_postal(csvReaderClientes.get(6));
+            String cod_unilever=csvReaderClientes.get(10)+csvReaderClientes.get(1);
+            c.setCodigo_generado_unilever(cod_unilever);
             clientes.add(c);
         }
     }
@@ -886,7 +889,7 @@ public class ventana_principal extends javax.swing.JFrame {
         for (int i = 0; i < clientes.size(); i++) {
             Clientes c= clientes.get(i);
             if(c.getCodigo().equals(cod_cliente_masabores)){
-                cuil=c.getCuil();
+                cuil=c.getCodigo_generado_unilever();
             }
         }
                 
@@ -1028,13 +1031,13 @@ public class ventana_principal extends javax.swing.JFrame {
         Properties prop = new Properties();
         InputStream is = null;
         try {
-//            is = new FileInputStream("C:/Users/Ignacio/Desktop/config.properties");
-            is = new FileInputStream("C:/Users/asirianni/Desktop/config.properties");
+            is = new FileInputStream("C:/Users/Ignacio/Desktop/config.properties");
+//            is = new FileInputStream("C:/Users/asirianni/Desktop/config.properties");
             prop.load(is);
             prop.setProperty(propiedad, valor);
 
-//            prop.store(new FileWriter("C:/Users/Ignacio/Desktop/config.properties"),"ultima actualizacion");
-            prop.store(new FileWriter("C:/Users/asirianni/Desktop/config.properties"),"ultima actualizacion");
+            prop.store(new FileWriter("C:/Users/Ignacio/Desktop/config.properties"),"ultima actualizacion");
+//            prop.store(new FileWriter("C:/Users/asirianni/Desktop/config.properties"),"ultima actualizacion");
         } catch(IOException e) {
                 System.out.println(e.toString());
         }
@@ -1044,8 +1047,8 @@ public class ventana_principal extends javax.swing.JFrame {
         Properties prop = new Properties();
         InputStream is = null;
         try {
-//            is = new FileInputStream("C:/Users/Ignacio/Desktop/config.properties");
-            is = new FileInputStream("C:/Users/asirianni/Desktop/config.properties");
+            is = new FileInputStream("C:/Users/Ignacio/Desktop/config.properties");
+//            is = new FileInputStream("C:/Users/asirianni/Desktop/config.properties");
             prop.load(is);
              jLabel2.setText(prop.getProperty("origen"));
              jLabel3.setText(prop.getProperty("destino"));

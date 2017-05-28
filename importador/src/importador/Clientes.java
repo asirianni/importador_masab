@@ -16,6 +16,15 @@ public class Clientes {
     private String apellido;
     private String razon_social;
     private String codigo_postal;
+    private String codigo_generado_unilever;
+
+    public String getCodigo_generado_unilever() {
+        return codigo_generado_unilever;
+    }
+
+    public void setCodigo_generado_unilever(String codigo_generado_unilever) {
+        this.codigo_generado_unilever = codigo_generado_unilever;
+    }
     
     public String getCodigo_postal() {
         return codigo_postal;
