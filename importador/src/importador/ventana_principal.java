@@ -519,7 +519,7 @@ public class ventana_principal extends javax.swing.JFrame {
                                 String cod_masabores_unilever=csvReaderPdv.get(1);
                                 String cod_tributariaRemplazadoGuion=cod_tributaria.replace("-", "");
 //                                String cod_tributariaRemplazadoEspacios=cod_tributariaRemplazadoGuion.replaceAll("\\s","");
-                                if(!sonEspacios(cod_tributariaRemplazadoGuion)){
+//                                if(!sonEspacios(cod_tributariaRemplazadoGuion)){
                                     String razon_social=csvReaderPdv.get(2);
                                     String nom_comercial=csvReaderPdv.get(17);
                                     String pais_pdv="AR"; 
@@ -539,7 +539,7 @@ public class ventana_principal extends javax.swing.JFrame {
                                     pdv.write("V;"+cod_tributariaRemplazadoGuion+cod_masabores_unilever+";"+razon_social+";"+nom_comercial+";"+pais_pdv+";"+region_pdv+";"+estado_pdv+";"+ciudad_pdv+";"+barrio_pdv+";"+direccion_pdv+";"+grupo_pdv+";"+clasificacion_pdv+";"+vededo_pdv+";"+fechareg_pdv+";"+cod_pos_pdv+";"+contacto_pdv+";"+estatus_pdv);
 
                                     pdv.newLine();
-                                }    
+//                                }    
                                 
                                 
                         
@@ -970,7 +970,7 @@ public class ventana_principal extends javax.swing.JFrame {
         String fechaSeleccionada="";
         int diasSumados=Integer.valueOf(dias);
         Calendar cal = Calendar.getInstance();
-        cal.set(1800,10,10,7,0,0);
+        cal.set(1800,12,28,7,0,0);
         cal.add(Calendar.DAY_OF_MONTH, diasSumados); 
         
         int anio_selected = cal.get(Calendar.YEAR);
