@@ -970,7 +970,7 @@ public class ventana_principal extends javax.swing.JFrame {
         String fechaSeleccionada="";
         int diasSumados=Integer.valueOf(dias);
         Calendar cal = Calendar.getInstance();
-        cal.set(1800,12,28,7,0,0);
+        cal.set(1800,11,28,7,0,0);
         cal.add(Calendar.DAY_OF_MONTH, diasSumados); 
         
         int anio_selected = cal.get(Calendar.YEAR);
