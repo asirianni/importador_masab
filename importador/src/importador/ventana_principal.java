@@ -258,8 +258,8 @@ public class ventana_principal extends javax.swing.JFrame {
         Properties prop = new Properties();
         InputStream is = null;
         try {
-            is = new FileInputStream("C:/Users/Ignacio/Desktop/config.properties");
-//            is = new FileInputStream("C:/Users/asirianni/Desktop/config.properties");
+//            is = new FileInputStream("C:/Users/Ignacio/Desktop/config.properties");
+            is = new FileInputStream("C:/Users/asirianni/Desktop/config.properties");
             prop.load(is);
             
             String sDirectorOrigen = prop.getProperty("origen");
@@ -1031,13 +1031,13 @@ public class ventana_principal extends javax.swing.JFrame {
         Properties prop = new Properties();
         InputStream is = null;
         try {
-            is = new FileInputStream("C:/Users/Ignacio/Desktop/config.properties");
-//            is = new FileInputStream("C:/Users/asirianni/Desktop/config.properties");
+//            is = new FileInputStream("C:/Users/Ignacio/Desktop/config.properties");
+            is = new FileInputStream("C:/Users/asirianni/Desktop/config.properties");
             prop.load(is);
             prop.setProperty(propiedad, valor);
 
-            prop.store(new FileWriter("C:/Users/Ignacio/Desktop/config.properties"),"ultima actualizacion");
-//            prop.store(new FileWriter("C:/Users/asirianni/Desktop/config.properties"),"ultima actualizacion");
+//            prop.store(new FileWriter("C:/Users/Ignacio/Desktop/config.properties"),"ultima actualizacion");
+            prop.store(new FileWriter("C:/Users/asirianni/Desktop/config.properties"),"ultima actualizacion");
         } catch(IOException e) {
                 System.out.println(e.toString());
         }
@@ -1047,8 +1047,8 @@ public class ventana_principal extends javax.swing.JFrame {
         Properties prop = new Properties();
         InputStream is = null;
         try {
-            is = new FileInputStream("C:/Users/Ignacio/Desktop/config.properties");
-//            is = new FileInputStream("C:/Users/asirianni/Desktop/config.properties");
+//            is = new FileInputStream("C:/Users/Ignacio/Desktop/config.properties");
+            is = new FileInputStream("C:/Users/asirianni/Desktop/config.properties");
             prop.load(is);
              jLabel2.setText(prop.getProperty("origen"));
              jLabel3.setText(prop.getProperty("destino"));
