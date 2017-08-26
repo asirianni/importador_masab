@@ -554,6 +554,7 @@ public class ventana_principal extends javax.swing.JFrame {
 
                         pdv.close();
                         
+                        deleteFolder(origen);
                     }
                 }else {  
                     jTextArea1.append("\n no existe el directorio destino");
@@ -566,6 +567,7 @@ public class ventana_principal extends javax.swing.JFrame {
         } catch(IOException e) {
                 System.out.println(e.toString());
         }
+        
         
         
     }//GEN-LAST:event_jButton6ActionPerformed
@@ -1059,6 +1061,48 @@ public class ventana_principal extends javax.swing.JFrame {
         } catch(IOException e) {
                 System.out.println(e.toString());
         }
+    }
+    
+     private void deleteFolder(File fileDel) {
+         
+        File[] ficheros =fileDel.listFiles(); 
+        File f=null; 
+        if(fileDel.exists()) 
+        { 
+        for (int x=0;x<ficheros.length;x++) 
+        { 
+        f= new File(ficheros[x].toString()); 
+        f.delete(); 
+        } 
+        } 
+        else 
+        { 
+        System.out.println("No existe el directorio"); 
+        }
+         
+//        if(fileDel.isDirectory()){            
+//            
+//            if(fileDel.list().length == 0)
+//                fileDel.delete();
+//            else{
+//                
+//               for (String temp : fileDel.list()) {
+//                   File fileDelete = new File(fileDel, temp);
+//                   //recursive delete
+//                   deleteFolder(fileDelete);
+//               }
+//
+//               //check the directory again, if empty then delete it
+//               if(fileDel.list().length==0)
+//                   fileDel.delete();
+//               
+//            }
+//
+//        }else{
+//            
+//            //if file, then delete it
+//            fileDel.delete();            
+//        }
     }
     
     public static void main(String args[]) {
