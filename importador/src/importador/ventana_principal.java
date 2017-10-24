@@ -431,7 +431,17 @@ public class ventana_principal extends javax.swing.JFrame {
     //                                String vendedor="2 - MARCIO SILVA";
                                             String codCd="30710665466";
                                             String codFab="30501092696";
-                                            String codBarra=csvReader.get(51);
+                                            String valorCodigoBarra="";
+                                            if ( (csvReader.get(51) != null) && (!csvReader.get(51).equals("")) ) {
+                                                valorCodigoBarra=csvReader.get(51);// cadena no está vacía
+                                            }else{
+                                                String vcb=csvReader.get(12);
+                                                String limpiando_valor=vcb.replaceAll("[^0-9]", "");
+                                                String limpiando_valor2=limpiando_valor.replaceAll("/", "");
+                                                valorCodigoBarra=limpiando_valor2;
+                                            }
+                                            
+                                            String codBarra=valorCodigoBarra;
                                             String cantidad=generarVolEmbalaje(csvReader.get(14));
                                             String valorLiquido=generarValorLiquido(csvReader.get(14), csvReader.get(17));
                                             String moneda="ARS";
